@@ -1,114 +1,162 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React from 'react';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useState} from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  ScrollView,
-  View,
   Text,
-  StatusBar,
+  View,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
 } from 'react-native';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+export default function App() {
+  const [animation] = useState(() => new Animated.Value(0));
 
-const App: () => React$Node = () => {
+  const background = animation.interpolate({
+    inputRange: [0, 0.2, 1.8, 2],
+    outputRange: [
+      'rgba(255,255,255,0)',
+      'rgba(255,255,255,.3)',
+      'rgba(255,255,255,.3)',
+      'rgba(255,255,255,0)',
+    ],
+    extrapolate: 'clamp',
+  });
+
+  const display = animation.interpolate({
+    inputRange: [0.2, 1],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  const {height} = Dimensions.get('window');
+
+  const success = animation.interpolate({
+    inputRange: [1.1, 2],
+    outputRange: [0, -height],
+    extrapolate: 'clamp',
+  });
+
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
+    <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => {
+          Animated.spring(animation, {
+            toValue: 1,
+            useNativeDriver: false,
+          }).start();
+        }}>
+        <Text>Open</Text>
+      </TouchableOpacity>
+      <Animated.View
+        pointerEvents="box-none"
+        style={[
+          styles.background,
+          {
+            backgroundColor: background,
+          },
+        ]}>
+        <Animated.View
+          style={[
+            styles.background,
+            {
+              transform: [{scale: display}, {translateY: success}],
+            },
+          ]}>
+          <View style={styles.wrap}>
+            <View style={styles.modalHeader} />
+            <Text style={styles.headerText}>Hello!</Text>
+            <Text style={styles.regularText}>
+              This modal is wonderful ain't it!
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+              }}>
+              <TouchableOpacity
+                style={[styles.button, styles.buttonCancel]}
+                onPress={() => {
+                  Animated.spring(animation, {
+                    toValue: 0,
+                    useNativeDriver: false,
+                  }).start();
+                }}>
+                <Text style={styles.buttonText}>Close</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  Animated.spring(animation, {
+                    toValue: 2,
+                    useNativeDriver: false,
+                  }).start(() => {
+                    animation.setValue(0);
+                  });
+                }}>
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
             </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
           </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+        </Animated.View>
+      </Animated.View>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  container: {
+    flex: 1,
+    backgroundColor: 'tomato',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  engine: {
+  background: {
     position: 'absolute',
+    left: 0,
+    top: 0,
     right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  body: {
-    backgroundColor: Colors.white,
+  wrap: {
+    borderRadius: 8,
+    backgroundColor: '#FFF',
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+
+    elevation: 10,
   },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
+  headerText: {
+    textAlign: 'center',
     fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
+  regularText: {
+    textAlign: 'center',
+    fontSize: 14,
+    marginTop: 16,
   },
-  highlight: {
-    fontWeight: '700',
+  button: {
+    backgroundColor: '#007ffe',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 16,
+    flex: 1,
+    marginHorizontal: 5,
   },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  buttonCancel: {
+    backgroundColor: 'red',
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
-
-export default App;
